@@ -29,32 +29,25 @@ define postfix::dbfile (
   $content    = undef,
   $source     = undef,
   $ensure     = undef,
-  $postmap    = $::postfix::params::postmap
+  $postmap    = $postfix::params::postmap
 ) {
-
   file { "${postfixdir}/${title}":
-    owner   => $owner,
+    ensure  => $ensure,
     group   => $group,
     mode    => $mode,
     content => $content,
     source  => $source,
-    ensure  => $ensure,
+    owner   => $owner,
   }
 
   if $ensure == 'absent' {
-
     file { "${postfixdir}/${title}.db": ensure => absent }
-
   } else {
-
     exec { "${postmap} ${title}":
       cwd         => $postfixdir,
       subscribe   => File["${postfixdir}/${title}"],
       refreshonly => true,
       # No need to notify the service, since it detects changed files
     }
-
   }
-
 }
-

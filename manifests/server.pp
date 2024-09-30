@@ -11,7 +11,7 @@ class postfix::server (
   # To install postfix-mysql package instead of plain postfix (EL5)
   $mysql = false,
   # See the main.cf comments for help on these options
-  $myhostname = $::fqdn,
+  $myhostname = $facts['networking']['fqdn'],
   $mydomain = false,
   $myorigin = '$myhostname',
   $inet_interfaces = 'localhost',
@@ -35,7 +35,7 @@ class postfix::server (
   $mail_spool_directory = false,
   $mailbox_command = false,
   $smtpd_banner = '$myhostname ESMTP $mail_name',
-  $setgid_group = $::postfix::params::setgid_group,
+  $setgid_group = $postfix::params::setgid_group,
   $mailbox_size_limit = undef,
   $message_size_limit = false,
   $mail_name = false,
@@ -61,15 +61,15 @@ class postfix::server (
   $ssl = false,
   $smtpd_tls_key_file = undef,
   $smtpd_tls_cert_file = undef,
-  $smtpd_tls_CAfile = undef,
+  $smtpd_tls_cafile = undef,
   $smtpd_sasl_auth = false,
   $smtpd_sasl_type = 'dovecot',
   $smtpd_sasl_path = 'private/auth',
   $smtp_sasl_auth = false,
   $smtp_sasl_password_maps = undef,
   $smtp_sasl_security_options = undef,
-  $smtp_tls_CAfile = undef,
-  $smtp_tls_CApath = undef,
+  $smtp_tls_cafile = undef,
+  $smtp_tls_capath = undef,
   $smtp_tls_key_file = undef,
   $smtp_tls_cert_file = undef,
   $smtp_tls_security_level = undef,
@@ -77,7 +77,7 @@ class postfix::server (
   $smtp_tls_note_starttls_offer = false,
   $smtp_tls_mandatory_ciphers = undef,
   $smtpd_tls_ask_ccert = false,
-  $tls_append_default_CA = false,
+  $tls_append_default_ca = false,
   $smtp_sasl_tls = false,
   $smtp_use_tls = false,
   $canonical_maps = false,
@@ -125,8 +125,8 @@ class postfix::server (
   $sa_rewrite_header   = [],
   $sa_trusted_networks = '10/8 172.16/12 192.168/16',
   $sa_skip_rbl_checks  = '1',
-  $sa_loadplugin       = [ 'Mail::SpamAssassin::Plugin::SPF' ],
-  $sa_score            = [ 'FH_DATE_PAST_20XX 0' ],
+  $sa_loadplugin       = ['Mail::SpamAssassin::Plugin::SPF'],
+  $sa_score            = ['FH_DATE_PAST_20XX 0'],
   $spampd_port         = '10026',
   $spampd_relayport    = '10027',
   $spampd_children     = '20',
@@ -136,35 +136,34 @@ class postfix::server (
   $postgrey_policy_service = undef,
   $clamav                  = false,
   # Parameters
-  $postfix_version        = $::postfix::params::postfix_version,
-  $command_directory      = $::postfix::params::command_directory,
-  $config_directory       = $::postfix::params::config_directory,
-  $daemon_directory       = $::postfix::params::daemon_directory,
-  $data_directory         = $::postfix::params::data_directory,
-  $manpage_directory      = $::postfix::params::manpage_directory,
-  $readme_directory       = $::postfix::params::readme_directory,
-  $sample_directory       = $::postfix::params::sample_directory,
-  $postfix_package        = $::postfix::params::postfix_package,
-  $postfix_mysql_package  = $::postfix::params::postfix_mysql_package,
-  $postfix_package_ensure = $::postfix::params::postfix_package_ensure,
-  $postgrey_package       = $::postfix::params::postgrey_package,
-  $service_restart        = $::postfix::params::service_restart,
-  $spamassassin_package   = $::postfix::params::spamassassin_package,
-  $spampd_package         = $::postfix::params::spampd_package,
-  $spampd_config          = $::postfix::params::spampd_config,
-  $spampd_template        = $::postfix::params::spampd_template,
-  $root_group             = $::postfix::params::root_group,
-  $mailq_path             = $::postfix::params::mailq_path,
-  $newaliases_path        = $::postfix::params::newaliases_path,
-  $sendmail_path          = $::postfix::params::sendmail_path
-) inherits ::postfix::params {
-
+  $postfix_version        = $postfix::params::postfix_version,
+  $command_directory      = $postfix::params::command_directory,
+  $config_directory       = $postfix::params::config_directory,
+  $daemon_directory       = $postfix::params::daemon_directory,
+  $data_directory         = $postfix::params::data_directory,
+  $manpage_directory      = $postfix::params::manpage_directory,
+  $readme_directory       = $postfix::params::readme_directory,
+  $sample_directory       = $postfix::params::sample_directory,
+  $postfix_package        = $postfix::params::postfix_package,
+  $postfix_mysql_package  = $postfix::params::postfix_mysql_package,
+  $postfix_package_ensure = $postfix::params::postfix_package_ensure,
+  $postgrey_package       = $postfix::params::postgrey_package,
+  $service_restart        = $postfix::params::service_restart,
+  $spamassassin_package   = $postfix::params::spamassassin_package,
+  $spampd_package         = $postfix::params::spampd_package,
+  $spampd_config          = $postfix::params::spampd_config,
+  $spampd_template        = $postfix::params::spampd_template,
+  $root_group             = $postfix::params::root_group,
+  $mailq_path             = $postfix::params::mailq_path,
+  $newaliases_path        = $postfix::params::newaliases_path,
+  $sendmail_path          = $postfix::params::sendmail_path
+) inherits postfix::params {
   # Default has el5 files, for el6 a few defaults have changed
   # FIXME : el6 template works for el7, but a new one would be prettier
-  if $::operatingsystem =~ /RedHat|CentOS/ {
-    if versioncmp($::operatingsystemmajrelease, '6') < 0 {
+  if $facts['os']['name'] =~ /RedHat|CentOS/ {
+    if versioncmp($facts['os']['release']['major'], '6') < 0 {
       $filesuffix = '-el5'
-    } elsif versioncmp($::operatingsystemmajrelease, '8') >= 0 {
+    } elsif versioncmp($facts['os']['release']['major'], '8') >= 0 {
       $filesuffix = '-el8'
     } else {
       $filesuffix = ''
@@ -182,9 +181,9 @@ class postfix::server (
   package { $package_name: ensure => $postfix_package_ensure, alias => 'postfix' }
 
   service { 'postfix':
-    require   => Package[$package_name],
-    enable    => true,
     ensure    => running,
+    enable    => true,
+    require   => Package[$package_name],
     hasstatus => true,
     restart   => $service_restart,
   }
@@ -203,12 +202,12 @@ class postfix::server (
   # Optional Spamassassin setup (using spampd)
   if $spamassassin {
     # Main packages and service they provide
-    package { [ $spamassassin_package, $spampd_package ]: ensure => installed }
+    package { [$spamassassin_package, $spampd_package]: ensure => installed }
     # Note that we don't want the normal spamassassin (spamd) service
     service { 'spampd':
-      require   => Package[$spampd_package],
-      enable    => true,
       ensure    => running,
+      enable    => true,
+      require   => Package[$spampd_package],
       hasstatus => true,
     }
     # Override the options passed to spampd
@@ -229,9 +228,9 @@ class postfix::server (
     # Main package and service it provides
     package { $postgrey_package: ensure => installed }
     service { 'postgrey':
-      require   => Package[$postgrey_package],
-      enable    => true,
       ensure    => running,
+      enable    => true,
+      require   => Package[$postgrey_package],
       # When stopped, status returns zero with 1.31-1.el5
       hasstatus => false,
     }
@@ -240,7 +239,7 @@ class postfix::server (
   # Optional ClamAV setup (using clamsmtp)
   # Defaults to listen on 10025 and re-send on 10026
   if $clamav {
-    include '::clamav::smtp'
+    include 'clamav::smtp'
   }
 
   # Regex header_checks
@@ -256,6 +255,4 @@ class postfix::server (
     group      => $root_group,
     postfixdir => $config_directory,
   }
-
 }
-
